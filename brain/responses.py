@@ -1,18 +1,21 @@
 import random
+from typing import List, TypeVar
 
-instinto_comida = ["comida?", "fome.", "definhando", "isso era meu"]
-instinto_passeio = ["rua?", "guia.", "agora.", "latindo pro nada"]
-instinto_gato = ["inimigo.", "grrr", "não gosto disso", "onde"]
-instinto_bola = ["minha.", "joga.", "não tira.", "só joga"]
+T = TypeVar('T')
 
-nao_sei = [
+instinto_comida: List[str] = ["comida?", "fome.", "definhando", "isso era meu"]
+instinto_passeio: List[str] = ["rua?", "guia.", "agora.", "latindo pro nada"]
+instinto_gato: List[str] = ["inimigo.", "grrr", "não gosto disso", "onde"]
+instinto_bola: List[str] = ["minha.", "joga.", "não tira.", "só joga"]
+
+nao_sei: List[str] = [
     "não entendi",
     "cérebro liso",
     "latindo confusa",
     "isso não é da minha espécie"
 ]
 
-brainrot = [
+brainrot: List[str] = [
     "???",
     "mds",
     "não",
@@ -22,7 +25,7 @@ brainrot = [
     "au?"
 ]
 
-respostas_erradas = [
+respostas_erradas: List[str] = [
     "sim (errado)",
     "não (talvez)",
     "com certeza não",
@@ -30,10 +33,10 @@ respostas_erradas = [
     "entendi tudo errado"
 ]
 
-emojis = ["🐕", "🦴", "💤", "😵‍💫", "🤨", "🧠", "❓"]
-latidos = ["au", "au au", "grr", "woof"]
+emojis: List[str] = ["🐕", "🦴", "💤", "😵‍💫", "🤨", "🧠", "❓"]
+latidos: List[str] = ["au", "au au", "grr", "woof"]
 
-lembrancas = [
+lembrancas: List[str] = [
     "acho que vc falou {word}",
     "vc vive dizendo {word}",
     "isso me lembra {word}",
@@ -41,12 +44,13 @@ lembrancas = [
     "não era vc que falou {word}?"
 ]
 
-lembrancas_erradas = [
+lembrancas_erradas: List[str] = [
     "vc sempre fala pizza (mentira)",
     "acho que vc disse abacate",
     "vc falou algo tipo blablabla",
     "era alguma coisa com s né"
 ]
 
-def pick(lista):
+def pick(lista: List[T]) -> T:
+    """Escolhe um item aleatório da lista."""
     return random.choice(lista)
