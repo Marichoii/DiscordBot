@@ -483,13 +483,38 @@ async def vocabulario(interaction: discord.Interaction):
             return
         total = len(learned_words)
         if total == 0:
-            await safe_send(interaction, "ainda não aprendi nada 🧠❌")
+            nivel = "iniciante"
+            frase = "ainda não aprendi nada"
         elif total < 10:
-            await safe_send(interaction, f"sei {total} palavras (quase nada)")
+            nivel = "curiosa"
+            frase = f"sei {total} palavras (quase nada)"
         elif total < 50:
-            await safe_send(interaction, f"sei {total} palavras! tô ficando esperta 🧠")
+            nivel = "esperta"
+            frase = f"sei {total} palavras! tô ficando esperta"
         else:
-            await safe_send(interaction, f"sei {total} palavras!! sou um gênio canino 🧠✨")
+            nivel = "gênio canino"
+            frase = f"sei {total} palavras!!"
+
+        embed = discord.Embed(
+            title="Vocabulário da Kuma",
+            description="catálogo premium de latidos e palavras",
+        )
+        embed.add_field(name="Total", value=f"{total} palavras", inline=True)
+        embed.add_field(name="Nível", value=nivel, inline=True)
+        embed.add_field(name="Status", value=frase, inline=False)
+        if total == 0:
+            embed.add_field(name="Palavras", value="(vazio)", inline=False)
+        else:
+            palavras = sorted(list(learned_words))
+            limite = 20
+            exibidas = palavras[:limite]
+            resto = total - len(exibidas)
+            lista = ", ".join(exibidas)
+            if resto > 0:
+                lista = f"{lista} … (+{resto})"
+            embed.add_field(name="Palavras", value=lista, inline=False)
+        style_embed(embed, interaction)
+        await safe_send(interaction, embed=embed)
     except Exception as e:
         logger.error(f"Erro no comando /vocabulario: {e}", exc_info=True)
         await safe_send(interaction, "esqueci de contar 🔢", ephemeral=True)
@@ -519,14 +544,18 @@ async def status(interaction: discord.Interaction):
         mood = time_based_mood()
         vocab = len(learned_words)
 
+        estado = "ofendida 😤" if is_offended() else "de boa"
+        poder = "mod ativa 😎" if is_mod() else "cachorra comum"
+
         embed = discord.Embed(
             title="Status da Kuma",
             description="painel premium do caos canino",
         )
         embed.add_field(name="Humor", value=mood, inline=True)
+        embed.add_field(name="Estado", value=estado, inline=True)
+        embed.add_field(name="Poder", value=poder, inline=True)
         embed.add_field(name="Vocabulário", value=f"{vocab} palavras", inline=True)
-        embed.add_field(name="Estado", value="ofendida 😤" if is_offended() else "de boa", inline=True)
-        embed.add_field(name="Poder", value="mod ativa 😎" if is_mod() else "cachorra comum", inline=True)
+        embed.add_field(name="Resumo", value=f"{mood} • {estado} • {poder}", inline=False)
         style_embed(embed, interaction)
 
         await safe_send(interaction, embed=embed)
