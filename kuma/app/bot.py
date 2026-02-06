@@ -3,8 +3,10 @@ import asyncio
 import logging
 import os
 import random
+from typing import cast
 
 import discord
+from discord.abc import Messageable
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
@@ -56,6 +58,24 @@ bot = commands.Bot(command_prefix=CONFIG.prefix, intents=intents)
 user_cooldown = Cooldown(CONFIG.on_message_user_cooldown)
 channel_cooldown = Cooldown(CONFIG.on_message_channel_cooldown)
 slash_cooldown = Cooldown(CONFIG.slash_user_cooldown)
+
+async def send_channel(channel: Messageable, *args, **kwargs):
+    """Envia mensagem garantindo canal messageable para o type checker."""
+    return await channel.send(*args, **kwargs)
+EMBED_COLOR = discord.Color.from_rgb(255, 199, 145)
+
+
+def style_embed(embed: discord.Embed, interaction: discord.Interaction) -> discord.Embed:
+    user = interaction.client.user
+    embed.color = EMBED_COLOR
+    if user:
+        embed.set_author(
+            name=f"{user.name} • Kuma",
+            icon_url=user.display_avatar.url,
+        )
+    embed.set_footer(text="🐾 Kuma • Skinwalker")
+    embed.timestamp = discord.utils.utcnow()
+    return embed
 
 
 async def safe_send(interaction: discord.Interaction, *args, **kwargs):
@@ -134,97 +154,172 @@ async def on_message(message: discord.Message):
 
         # Sistema de medo
         if scared_by(msg):
-            await message.channel.send(CONFIG.fear_reply)
+            await send_channel(cast(Messageable, message.channel), CONFIG.fear_reply)
             return
 
         # Ativa modo moderador
         if "kuma mod" in msg:
-            if message.guild and message.author.guild_permissions.manage_messages:
+            if message.guild and isinstance(message.author, discord.Member) and message.author.guild_permissions.manage_messages:
                 activate_mod(CONFIG.mod_duration_seconds)
-                await message.channel.send("sou mod agora 😤")
+                await send_channel(cast(Messageable, message.channel), "sou mod agora 😤")
             else:
-                await message.channel.send("sem permissão pra isso 🙅")
+                await send_channel(cast(Messageable, message.channel), "sem permissão pra isso 🙅")
             return
 
         # Moderação ativa
         if is_mod() and contains(msg, ["idiota", "burro", "xingar"]):
             try:
                 await message.delete()
-                await message.channel.send("apaguei 👍")
+                await send_channel(cast(Messageable, message.channel), "apaguei 👍")
             except discord.Forbidden:
-                await message.channel.send("não tenho permissão pra apagar 😔")
+                await send_channel(cast(Messageable, message.channel), "não tenho permissão pra apagar 😔")
             except Exception as e:
                 logger.error(f"Erro ao deletar mensagem: {e}")
             return
 
         # Sistema de ofensa
         if is_offended():
-            await message.channel.send("não fala comigo 😤")
+            await send_channel(cast(Messageable, message.channel), "não fala comigo 😤")
             return
 
         # Reação a bots
         if message.author.bot and random.random() < CONFIG.respond_to_bots_chance:
-            await message.channel.send("vc é estranho")
+            await send_channel(cast(Messageable, message.channel), "vc é estranho")
             return
 
         # Surto de latidos aleatório
         if random.random() < CONFIG.bark_burst_chance:
             for _ in range(random.randint(3, 6)):
-                await message.channel.send(pick(latidos))
+                await send_channel(cast(Messageable, message.channel), pick(latidos))
                 await asyncio.sleep(0.5)
             return
 
         # Brainrot aleatório
         if random.random() < CONFIG.brainrot_chance:
-            await message.channel.send(pick(brainrot))
+            await send_channel(cast(Messageable, message.channel), pick(brainrot))
             return
 
         # Instintos caninos
         if contains(msg, ["comida", "petisco", "fome", "comer"]):
-            await message.channel.send(
+            await send_channel(cast(Messageable, message.channel), 
                 mood_modifier(mood, pick_unique(f"comida:{message.channel.id}", instinto_comida))
             )
             return
 
         if contains(msg, ["passear", "rua", "passeio"]):
-            await message.channel.send(
+            await send_channel(cast(Messageable, message.channel), 
                 mood_modifier(mood, pick_unique(f"passeio:{message.channel.id}", instinto_passeio))
             )
             return
 
         if contains(msg, ["gato"]):
-            await message.channel.send(
+            await send_channel(cast(Messageable, message.channel), 
                 mood_modifier(mood, pick_unique(f"gato:{message.channel.id}", instinto_gato))
             )
             return
 
         if contains(msg, ["bola", "brinquedo"]):
-            await message.channel.send(
+            await send_channel(cast(Messageable, message.channel), 
                 mood_modifier(mood, pick_unique(f"bola:{message.channel.id}", instinto_bola))
             )
             return
 
         # Quando mencionam a kuma
-        if "kuma" in msg or bot.user.mentioned_in(message):
+        if "kuma" in msg or (bot.user and bot.user.mentioned_in(message)):
+            # Intenções simples
+            if contains(msg, ["late", "latir", "lata", "latindo"]):
+                await send_channel(cast(Messageable, message.channel), "au au!")
+                for _ in range(random.randint(1, 3)):
+                    await asyncio.sleep(0.4)
+                    await send_channel(cast(Messageable, message.channel), pick(latidos))
+                return
+
+            if contains(msg, ["petisco", "comida", "ração", "racao"]):
+                await send_channel(
+                    cast(Messageable, message.channel),
+                    pick_unique(
+                        f"petisco:{message.channel.id}",
+                        [
+                            "AAAAA PETISCO!!!",
+                            "aceito. agora.",
+                            "*come sem mastigar*",
+                            "isso aí é respeito",
+                            "obrigada. mais?",
+                        ],
+                    ),
+                )
+                return
+
+            if contains(msg, ["passeia", "passear", "passeio", "rua"]):
+                await send_channel(
+                    cast(Messageable, message.channel),
+                    pick_unique(f"passeio_call:{message.channel.id}", instinto_passeio),
+                )
+                return
+
+            if contains(msg, ["carinho", "cafune", "afago"]):
+                if is_offended():
+                    await send_channel(cast(Messageable, message.channel), "não quero 😤")
+                    return
+                await send_channel(
+                    cast(Messageable, message.channel),
+                    pick_unique(
+                        f"carinho_call:{message.channel.id}",
+                        [
+                            "*balança o rabo*",
+                            "de novo",
+                            "*deita de barriga pra cima*",
+                            "gostei. continua.",
+                            "isso é vida boa",
+                        ],
+                    ),
+                )
+                return
+
+            if contains(msg, ["truque", "faz algo", "faz um truque"]):
+                await send_channel(
+                    cast(Messageable, message.channel),
+                    pick_unique(
+                        f"truque_call:{message.channel.id}",
+                        [
+                            "senta! (mas não sentou)",
+                            "*rola no chão aleatoriamente*",
+                            "finge que sabe dar a pata",
+                            "*late pra parede*",
+                            "au? isso era um truque?",
+                        ],
+                    ),
+                )
+                return
+
+            if contains(msg, ["status", "como você tá", "como voce ta", "como vc ta"]):
+                mood = time_based_mood()
+                vocab = len(learned_words)
+                await send_channel(
+                    cast(Messageable, message.channel),
+                    f"humor: {mood} | palavras: {vocab} | estado: {'ofendida' if is_offended() else 'de boa'}",
+                )
+                return
+
             if contains(msg, ["chata", "burra", "feia"]):
                 offend(CONFIG.offended_duration_seconds)
-                await message.channel.send("fiquei triste 😢")
+                await send_channel(cast(Messageable, message.channel), "fiquei triste 😢")
                 return
 
             if random.random() < CONFIG.kuma_mention_wrong_chance:
-                await message.channel.send(
+                await send_channel(cast(Messageable, message.channel), 
                     pick_unique(f"erradas:{message.channel.id}", respostas_erradas)
                 )
                 return
 
             if random.random() < CONFIG.kuma_mention_emoji_chance:
-                await message.channel.send(pick_unique(f"emoji:{message.channel.id}", emojis))
+                await send_channel(cast(Messageable, message.channel), pick_unique(f"emoji:{message.channel.id}", emojis))
                 return
 
             lembranca = recall_user(message.author.id)
             if lembranca and can_recall(message.author.id):
                 if random.random() < CONFIG.kuma_recall_wrong_chance:
-                    await message.channel.send(
+                    await send_channel(cast(Messageable, message.channel), 
                         pick_unique(f"lembranca_errada:{message.channel.id}", lembrancas_erradas)
                     )
                     return
@@ -232,15 +327,15 @@ async def on_message(message: discord.Message):
                 frase = pick_unique(f"lembranca:{message.channel.id}", lembrancas).format(
                     word=lembranca
                 )
-                await message.channel.send(frase)
+                await send_channel(cast(Messageable, message.channel), frase)
                 return
 
             learned = random_learned()
             if learned and random.random() < CONFIG.kuma_learned_chance:
-                await message.channel.send(f"aprendi a palavra {learned}")
+                await send_channel(cast(Messageable, message.channel), f"aprendi a palavra {learned}")
                 return
 
-            await message.channel.send(pick_unique(f"nao_sei:{message.channel.id}", nao_sei))
+            await send_channel(cast(Messageable, message.channel), pick_unique(f"nao_sei:{message.channel.id}", nao_sei))
 
         await bot.process_commands(message)
 
@@ -409,7 +504,7 @@ async def latir(interaction: discord.Interaction):
         await safe_send(interaction, "au au!")
         await asyncio.sleep(0.5)
         for _ in range(random.randint(2, 4)):
-            await interaction.channel.send(pick(latidos))
+            await send_channel(cast(Messageable, interaction.channel), pick(latidos))
             await asyncio.sleep(0.4)
     except Exception as e:
         logger.error(f"Erro no comando /latir: {e}", exc_info=True)
@@ -424,11 +519,15 @@ async def status(interaction: discord.Interaction):
         mood = time_based_mood()
         vocab = len(learned_words)
 
-        embed = discord.Embed(title="🐶 Status da Kuma", color=discord.Color.orange())
+        embed = discord.Embed(
+            title="Status da Kuma",
+            description="painel premium do caos canino",
+        )
         embed.add_field(name="Humor", value=mood, inline=True)
         embed.add_field(name="Vocabulário", value=f"{vocab} palavras", inline=True)
         embed.add_field(name="Estado", value="ofendida 😤" if is_offended() else "de boa", inline=True)
         embed.add_field(name="Poder", value="mod ativa 😎" if is_mod() else "cachorra comum", inline=True)
+        style_embed(embed, interaction)
 
         await safe_send(interaction, embed=embed)
     except Exception as e:
@@ -473,9 +572,8 @@ async def ajuda(interaction: discord.Interaction):
         if not await guard_slash(interaction):
             return
         embed = discord.Embed(
-            title="📋 Comandos da Kuma",
-            description="sou uma spitz caótica, esses são meus comandos:",
-            color=discord.Color.gold(),
+            title="Comandos da Kuma",
+            description="menu principal da spitz do servidor",
         )
 
         comandos = [
@@ -495,9 +593,14 @@ async def ajuda(interaction: discord.Interaction):
         ]
 
         for cmd, desc in comandos:
-            embed.add_field(name=cmd, value=desc, inline=False)
+            embed.add_field(name=cmd, value=desc, inline=True)
 
-        embed.set_footer(text="também respondo quando falam 'kuma' nas mensagens!")
+        embed.add_field(
+            name="Dica",
+            value="me chama de **kuma** nas mensagens e eu respondo",
+            inline=False,
+        )
+        style_embed(embed, interaction)
 
         await safe_send(interaction, embed=embed)
     except Exception as e:
@@ -534,3 +637,6 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
+
+
+
