@@ -1,6 +1,6 @@
-# 🧠 Brain - Módulos de Inteligência da Kuma
+# 🧠 Features - Módulos de Inteligência da Kuma
 
-Este diretório contém os módulos que compõem a "inteligência" da Kuma.
+Este diretório de features contém os módulos que compõem a "inteligência" da Kuma.
 
 ## Módulos
 
@@ -78,7 +78,8 @@ Todos os módulos são **stateful** e mantêm estado em memória. O módulo `per
 
 Para adicionar novas funcionalidades:
 
-1. Crie um novo arquivo `.py` no diretório `brain/`
+1. Crie um novo arquivo `.py` no diretório de features `kuma/features/`
 2. Implemente as funções necessárias com type hints
 3. Importe no `bot.py`
 4. Se precisar persistência, adicione em `persistence.py`
+

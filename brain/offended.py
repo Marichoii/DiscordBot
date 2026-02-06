@@ -1,1 +1,2 @@
-from kuma.features.offended import *
+﻿from kuma.features.offended import *
+

@@ -123,6 +123,23 @@ Os dados são salvos automaticamente a cada 5 minutos e também:
 - Quando o bot é encerrado normalmente
 - Manualmente com o comando `/salvar`
 
+### Variáveis de Ambiente (opcional)
+Você pode ajustar comportamentos no `.env`:
+- `BOT_PREFIX` (padrão `!`)
+- `AUTOSAVE_MINUTES` (padrão `5`)
+- `MOD_DURATION_SECONDS` (padrão `10`)
+- `OFFENDED_DURATION_SECONDS` (padrão `45`)
+- `RESPOND_TO_BOTS_CHANCE` (padrão `0.3`)
+- `BARK_BURST_CHANCE` (padrão `0.01`)
+- `BRAINROT_CHANCE` (padrão `0.02`)
+- `KUMA_WRONG_CHANCE` (padrão `0.2`)
+- `KUMA_EMOJI_CHANCE` (padrão `0.3`)
+- `KUMA_RECALL_WRONG_CHANCE` (padrão `0.3`)
+- `KUMA_LEARNED_CHANCE` (padrão `0.1`)
+- `MSG_USER_COOLDOWN` (padrão `1.5`)
+- `MSG_CHANNEL_COOLDOWN` (padrão `0.4`)
+- `SLASH_USER_COOLDOWN` (padrão `2.0`)
+
 ### Personalização
 
 Você pode personalizar as respostas editando os arquivos em `brain/`:
@@ -167,3 +184,4 @@ Bot criado com ❤️ para a Kuma, a Spitz Alemã mais caótica do Discord!
 ---
 
 **Nota**: Este bot foi criado para fins de entretenimento e aprendizado. Certifique-se de seguir os [Termos de Serviço do Discord](https://discord.com/terms) ao usar bots.
+

@@ -33,8 +33,8 @@ def load_data() -> Dict[str, Any]:
 
 def export_state() -> Dict[str, Any]:
     """Exporta o estado atual do bot para um dicionário."""
-    from brain.learning import learned_words
-    from brain.memory import user_memory
+    from kuma.features.learning import learned_words
+    from kuma.features.memory import user_memory
     
     return {
         "learned_words": list(learned_words),
@@ -43,8 +43,8 @@ def export_state() -> Dict[str, Any]:
 
 def import_state(data: Dict[str, Any]) -> None:
     """Importa o estado do bot de um dicionário."""
-    from brain.learning import learned_words
-    from brain.memory import user_memory
+    from kuma.features.learning import learned_words
+    from kuma.features.memory import user_memory
     
     if "learned_words" in data:
         learned_words.clear()
@@ -55,3 +55,4 @@ def import_state(data: Dict[str, Any]) -> None:
         user_memory.clear()
         user_memory.update({int(k): v for k, v in data["user_memory"].items()})
         logger.info(f"Carregadas memórias de {len(user_memory)} usuários")
+
